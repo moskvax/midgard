@@ -4,7 +4,7 @@ set -e
 export LD_LIBRARY_PATH=.:`cat /etc/ld.so.conf.d/* | grep -v -E "#" | tr "\\n" ":" | sed -e "s/:$//g"`
 
 #add ppas
-sudo add-apt-repository -y $(echo $@ | grep -F "ppa:")
+sudo add-apt-repository -y $(echo $@ | tr ' ' '\n' | grep -F "ppa:")
 
 #check whats in them
 #TODO: only update the ppas we added
@@ -12,7 +12,7 @@ sudo add-apt-repository -y $(echo $@ | grep -F "ppa:")
 sudo apt-get update
 
 #install some stuff
-sudo apt-get install -y $(echo $@ | grep -vF "ppa:")
+sudo apt-get install -y $(echo $@ | tr ' ' '\n' | grep -vF "ppa:")
 
 #need newer compilers
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 90
