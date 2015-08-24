@@ -1,0 +1,7 @@
+autoconf
+automake
+libtool
+make
+gcc-4.9
+g++-4.9
+lcov

@@ -5,11 +5,10 @@ checkout:
 
 dependencies:
   override:
-    - scripts/dependencies.sh
 
 test:
   override:
-    - scripts/install.sh
+    - scripts/install.sh $(cat deps/*)
 
 general:
   artifacts:
