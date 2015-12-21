@@ -8,6 +8,7 @@
 #include <chrono>
 #include <ctime>
 #include <cstdlib>
+#include <android/log.h>
 
 namespace {
 
@@ -91,21 +92,40 @@ class StdOutLogger : public Logger {
   StdOutLogger() = delete;
   StdOutLogger(const LoggingConfig& config) : Logger(config), levels(config.find("color") != config.end() && config.find("color")->second == "true" ? colored : uncolored) {}
   virtual void Log(const std::string& message, const LogLevel level) {
-    Log(message, levels.find(level)->second);
+//    Log(message, levels.find(level)->second);
+      switch (level) {
+          case LogLevel::DEBUG:
+              LOG_ANDROID_DEBUG("%s", message.c_str());
+              break;
+          case LogLevel::INFO:
+              LOG_ANDROID_INFO("%s", message.c_str());
+              break;
+          case LogLevel::WARN:
+              LOG_ANDROID_WARN("%s", message.c_str());
+              break;
+          case LogLevel::ERROR:
+              LOG_ANDROID_ERROR("%s", message.c_str());
+              break;
+          case LogLevel::TRACE:
+          default:
+              LOG_ANDROID_TRACE("%s", message.c_str());
+              break;
+      }
   }
   virtual void Log(const std::string& message, const std::string& custom_directive = " [TRACE] ") {
-    std::string output;
-    output.reserve(message.length() + 64);
-    output.append(TimeStamp());
-    output.append(custom_directive);
-    output.append(message);
-    output.push_back('\n');
+      Log(message, LogLevel::TRACE);
+//    std::string output;
+//    output.reserve(message.length() + 64);
+//    output.append(TimeStamp());
+//    output.append(custom_directive);
+//    output.append(message);
+//    output.push_back('\n');
     //cout is thread safe, to avoid multiple threads interleaving on one line
     //though, we make sure to only call the << operator once on std::cout
     //otherwise the << operators from different threads could interleave
     //obviously we dont care if flushes interleave
-    std::cout << output;
-    std::cout.flush();
+//    std::cout << output;
+//    std::cout.flush();
   }
  protected:
   const std::unordered_map<LogLevel, std::string, EnumHasher> levels;
@@ -124,20 +144,20 @@ class FileLogger : public Logger {
     if(name == config.end())
       throw std::runtime_error("No output file provided to file logger");
     file_name = name->second;
-    
+
     //if we specify an interval
     reopen_interval = std::chrono::seconds(300);
     auto interval = config.find("reopen_interval");
     if(interval != config.end())
     {
-      try {        
+      try {
         reopen_interval = std::chrono::seconds(std::stoul(interval->second));
       }
       catch(...) {
         throw std::runtime_error(interval->second + " is not a valid reopen interval");
       }
     }
-    
+
     //crack the file open
     ReOpen();
   }
@@ -174,7 +194,7 @@ class FileLogger : public Logger {
         try{ file.close(); }catch(...){}
         throw e;
       }
-    }    
+    }
     lock.unlock();
   }
   std::string file_name;

@@ -4,6 +4,7 @@
 #include <string>
 #include <mutex>
 #include <unordered_map>
+#include <android/log.h>
 
 namespace valhalla {
 namespace midgard {
@@ -51,6 +52,12 @@ void Log(const std::string&, const std::string& custom_directive = " [TRACE] ");
 //logging::Configure({ {"type", "std_out"}, {"color", ""} })
 //logging::Configure({ {"type", "file"}, {"file_name", "test.log"}, {"reopen_interval", "1"} })
 void Configure(const LoggingConfig& config);
+
+#define LOG_ANDROID_ERROR(...) __android_log_print(ANDROID_LOG_ERROR, "valhalla", __VA_ARGS__)
+#define LOG_ANDROID_WARN(...) __android_log_print(ANDROID_LOG_WARN, "valhalla", __VA_ARGS__)
+#define LOG_ANDROID_INFO(...) __android_log_print(ANDROID_LOG_INFO, "valhalla", __VA_ARGS__)
+#define LOG_ANDROID_DEBUG(...) __android_log_print(ANDROID_LOG_DEBUG, "valhalla", __VA_ARGS__)
+#define LOG_ANDROID_TRACE(...) __android_log_print(ANDROID_LOG_VERBOSE, "valhalla", __VA_ARGS__)
 
 //guarding against redefinitions
 #ifndef LOG_ERROR
